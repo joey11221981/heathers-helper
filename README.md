@@ -25,4 +25,4 @@ Requires Flutter SDK and Android SDK (`JAVA_HOME` configured for Gradle).
 
 ## UI mockup
 
-See [mockup/README.md](mockup/README.md) for the clickable Cursor canvas prototype.
+See [mockup/README.md](mockup/README.md) for the clickable Cursor canvas prototype and a visual preview (`mockup/heathers-helper-visual-mockup.png`).

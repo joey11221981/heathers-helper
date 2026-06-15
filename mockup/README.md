@@ -2,6 +2,8 @@
 
 Interactive Cursor canvas mockup for the full app design (timer, tasks, alerts, settings).
 
+![Visual mockup](heathers-helper-visual-mockup.png)
+
 ## Open the mockup
 
 1. Copy `heathers-helper-mockup.canvas.tsx` into your Cursor project's `canvases/` folder, or open it from this repo in Cursor.
