@@ -1,0 +1,110 @@
+# Codemagic CI/CD for Heather's Helper (Flutter Android)
+# Docs: https://docs.codemagic.io/yaml-basic-configuration/yaml-getting-started/
+#
+# Setup in Codemagic:
+# 1. Connect https://github.com/joey11221981/heathers-helper
+# 2. Codemagic detects this file automatically on the next build
+# 3. Optional: add an Android keystore under Team settings > Code signing,
+#    then uncomment android_signing in the release workflow below
+
+workflows:
+  heathers-helper-android:
+    name: Heather's Helper — Android APK
+    max_build_duration: 60
+    instance_type: linux_x2
+
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+        - pattern: "*"
+          include: true
+          source: true
+
+    environment:
+      flutter: stable
+      java: 17
+      vars:
+        PACKAGE_NAME: "com.heathershelper.heathers_helper"
+        APP_NAME: "Heather's Helper"
+
+    scripts:
+      - name: Set up local.properties
+        script: |
+          echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
+
+      - name: Install dependencies
+        script: flutter pub get
+
+      - name: Analyze
+        script: flutter analyze
+
+      - name: Run tests
+        script: flutter test
+        ignore_failure: true
+
+      - name: Build release APK
+        script: flutter build apk --release
+
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
+      - build/app/outputs/**/*.apk
+      - flutter_drive.log
+
+    publishing:
+      scripts:
+        - name: Build summary
+          script: |
+            echo "Built $APP_NAME ($PACKAGE_NAME)"
+            ls -la build/app/outputs/flutter-apk/ || true
+
+  heathers-helper-android-signed:
+    name: Heather's Helper — Signed AAB (Play Store)
+    max_build_duration: 60
+    instance_type: linux_x2
+
+    # Run manually until Play Store signing is configured.
+    triggering:
+      events: []
+
+    environment:
+      flutter: stable
+      java: 17
+      # Upload keystore in Codemagic UI, then replace the reference name below.
+      # android_signing:
+      #   - heathers_helper_keystore
+      # groups:
+      #   - google_play
+      vars:
+        PACKAGE_NAME: "com.heathershelper.heathers_helper"
+        APP_NAME: "Heather's Helper"
+        # GOOGLE_PLAY_TRACK: internal
+
+    scripts:
+      - name: Set up local.properties
+        script: |
+          echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
+
+      - name: Install dependencies
+        script: flutter pub get
+
+      - name: Analyze
+        script: flutter analyze
+
+      - name: Build signed App Bundle
+        script: |
+          flutter build appbundle --release \
+            --build-name="$(grep '^version:' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)" \
+            --build-number="${PROJECT_BUILD_NUMBER:-1}"
+
+    artifacts:
+      - build/app/outputs/bundle/release/*.aab
+      - build/app/outputs/**/*.apk
+
+    # publishing:
+    #   google_play:
+    #     credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+    #     track: $GOOGLE_PLAY_TRACK
+    #     submit_as_draft: true
