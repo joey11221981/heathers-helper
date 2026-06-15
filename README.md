@@ -1,6 +1,6 @@
 # Heather's Helper
 
-Sequential task timer for Android — run through a routine one step at a time.
+Sequential task timer for Android — run through a routine one step at a time. Built as an ADHD-friendly focus timer.
 
 ## What's in this repo
 
